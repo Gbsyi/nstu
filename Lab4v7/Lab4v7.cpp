@@ -4,14 +4,22 @@
 
 using namespace std;
 
+struct Node
+{
+    int data;
+    Node* next;
+};
+
+/** Функция заполнения файла случайно сгенерироваными числами */
 void create_file()
 {
+    // Открываем файл
     ofstream output;
-
     output.open("file.bin", ios::out | ios::trunc);
 
     cout << "Введите количество чисел";
 
+    // Инициализируем генератор
     random_device rd;
     mt19937 generator(rd());
     const std::uniform_int_distribution<int> distribution(-100, 100);
@@ -20,6 +28,7 @@ void create_file()
     int n;
     cin >> n;
 
+    // Заполняем файл
     cout << "Содержимое файла: " << endl;
     for (auto i = 0; i < n; i++)
     {
@@ -27,16 +36,12 @@ void create_file()
         output.write(reinterpret_cast<char*>(&random_int), sizeof(int));
         cout << random_int << " ";
     }
+
+    output.close();
     cout << endl;
 }
 
-struct Node
-{
-    int data;
-    Node* next;
-};
-
-// Функция для добавления нового элемента в список
+/** Функция для добавления нового элемента в список */
 void insert(Node** head, int data)
 {
     auto new_node = new Node();
@@ -58,7 +63,7 @@ void insert(Node** head, int data)
     }
 }
 
-// Функция для печати списка
+/** Функция для печати списка */
 void print_list(Node* head)
 {
     Node* current = head;
@@ -70,7 +75,9 @@ void print_list(Node* head)
     std::cout << std::endl;
 }
 
-// Функция для освобождения памяти, занятой списком
+/**
+ * Функция для освобождения памяти, занятой списком
+ * */
 void delete_list(Node* head)
 {
     Node* current = head;
@@ -103,7 +110,10 @@ void split_list(Node* head, Node** positive_head, Node** negative_head)
     }
 }
 
-// Функция для сортировки списка по возрастанию
+/**
+ * \brief Функция для сортировки списка по возрастанию 
+ * \param head Начало списка 
+ */
 void sort_list(Node** head)
 {
     if (*head == nullptr || (*head)->next == nullptr)
@@ -142,13 +152,16 @@ void sort_list(Node** head)
     *head = sorted_list;
 }
 
-int read_file()
+/**
+ * \brief Функция чтения файла и разделения на положительные и отрицательные числа
+ */
+void read_and_separate_file()
 {
     std::ifstream input_file("file.bin", std::ios::binary);
     if (!input_file)
     {
         std::cout << "Ошибка открытия файла." << std::endl;
-        return 1;
+        return;
     }
 
     Node* positive_head = nullptr;
@@ -157,6 +170,7 @@ int read_file()
     int num;
     while (input_file.read(reinterpret_cast<char*>(&num), sizeof(int)))
     {
+        // Определяем список для вставки по условию и вставляем число в нужный список
         insert(num >= 0 ? &positive_head : &negative_head, num);
     }
 
@@ -178,11 +192,51 @@ int read_file()
     delete_list(negative_head);
 }
 
+/**
+ * \brief Функция простого чтения файла
+ * \return Числа в виде списка
+ */
+Node* read_file()
+{
+    Node* head = nullptr;
+
+    std::ifstream input_file("file.bin", std::ios::binary);
+    if (!input_file)
+    {
+        std::cout << "Ошибка открытия файла." << std::endl;
+        return nullptr;
+    }
+
+    int num;
+    while (input_file.read(reinterpret_cast<char*>(&num), sizeof(int)))
+    {
+        insert(&head, num);
+    }
+
+    input_file.close();
+
+    return head;
+}
+
+
+/**
+ * \brief Функция чтения файла и вывода содержимого на экран
+ */
+void read_and_print_file()
+{
+    auto head = read_file();
+    print_list(head);
+    delete_list(head);
+}
+
 int main()
 {
     while (true)
     {
-        cout << "Выберите режим работы:" << endl;
+        cout << "Выберите режим работы:" << endl
+            << "1 - Сгенерировать новый файл" << endl
+            << "2 - Прочитать файл и вывести сначала положительные, затем - отрицательные числа" << endl
+            << "3 - Прочитать файл и вывести результат на экран" << endl;
 
         int choice;
         cin >> choice;
@@ -192,10 +246,14 @@ int main()
             create_file();
             break;
         case 2:
-            read_file();
+            read_and_separate_file();
+            break;
+        case 3:
+            read_and_print_file();
             break;
         default:
             return 0;
         }
+        cout << endl << endl;
     }
 }
