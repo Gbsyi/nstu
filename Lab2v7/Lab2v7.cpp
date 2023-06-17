@@ -67,11 +67,13 @@ Node* findMaxElement(Node* head)
  */
 int insertAfterFirstOccurrence(Node*& L1, int E, Node* L2)
 {
+    int length = 0;
     Node* temp = L1;
     Node* tempAfterE = L1;
     // Проходим по списку L1 пока не дойдём до конца или не встретим элемент E
     while (temp != nullptr && temp->data != E)
     {
+        length++;
         temp = temp->next;
         tempAfterE = tempAfterE->next;
     }
@@ -86,6 +88,7 @@ int insertAfterFirstOccurrence(Node*& L1, int E, Node* L2)
         // Доходим до конца получившегося списка
         while (temp->next != nullptr)
         {
+            length++;
             temp = temp->next;
         }
         // Прикрепляем продолжение списка L1 после элемента E
@@ -96,10 +99,7 @@ int insertAfterFirstOccurrence(Node*& L1, int E, Node* L2)
         cout << "Элемент E со значением " << E << " не найден в списке L1" << endl;
     }
 
-
-    // Повторно проходим по списку и считаем его длину
-    int length = 0;
-    temp = L1;
+    // Доходим до конца списка и заканчиваем подсчёт длины
     while (temp != nullptr)
     {
         length++;
